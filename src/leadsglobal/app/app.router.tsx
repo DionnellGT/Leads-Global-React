@@ -22,7 +22,7 @@ const appRouter = createBrowserRouter([
 
     {
         path: '*',
-        element: <Navigate to='/' />
+        element: <Navigate to='/dashboard' />
     },
 ])
 
