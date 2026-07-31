@@ -53,10 +53,18 @@ export interface TopForm {
   count: number
 }
 
+export interface TodayVsYesterday {
+  today: number
+  yesterdaySameTime: number
+  diff: number
+  diffPercent: number | null
+}
+
 export interface LeadStats {
   total: number
   leadsToday: number
   leadsThisWeek: number
+  todayVsYesterday: TodayVsYesterday
   byEstado: LeadEstadoCount[]
   leadsByDay: LeadsByDay[]
   topForms: TopForm[]

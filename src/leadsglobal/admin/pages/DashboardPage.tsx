@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardValue } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { cn } from "@/lib/utils"
+import { Minus, TrendingDown, TrendingUp } from "lucide-react"
 import {
   Bar,
   BarChart,
@@ -13,7 +15,7 @@ import {
 } from "recharts"
 import { PageHeader } from "../../components/PageHeader"
 import { useLeadStats } from "../../hooks/useLeadStats"
-import type { LeadEstadoCount } from "../../types/lead.types"
+import type { LeadEstadoCount, TodayVsYesterday } from "../../types/lead.types"
 
 const ESTADO_COLOR: Record<string, string> = {
   Nuevo: "var(--chart-1)",
@@ -28,6 +30,46 @@ function formatDayLabel(isoDate: string) {
     "jul", "ago", "sep", "oct", "nov", "dic",
   ]
   return `${Number(day)} ${months[Number(month) - 1]}`
+}
+
+function TodayVsYesterdayBadge({ data }: { data: TodayVsYesterday }) {
+  const { diff, diffPercent, yesterdaySameTime } = data
+
+  // Sin datos de ayer a esta hora para comparar (ej. recién empezaste
+  // a capturar leads ayer, o ayer no hubo ninguno todavía a esta hora).
+  if (yesterdaySameTime === 0 && diff === 0) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Sin datos de ayer a esta hora para comparar.
+      </p>
+    )
+  }
+
+  const isUp = diff > 0
+  const isFlat = diff === 0
+  const Icon = isFlat ? Minus : isUp ? TrendingUp : TrendingDown
+  const colorClass = isFlat
+    ? "text-muted-foreground"
+    : isUp
+      ? "text-emerald-600 dark:text-emerald-400"
+      : "text-red-600 dark:text-red-400"
+
+  const label = isFlat
+    ? "Igual que ayer a esta hora"
+    : `${Math.abs(diff)} ${isUp ? "más" : "menos"} que ayer a esta hora`
+
+  return (
+    <p className={cn("flex items-center gap-1 text-xs font-medium", colorClass)}>
+      <Icon className="size-3.5" />
+      {label}
+      {diffPercent !== null && !isFlat && (
+        <span className="text-muted-foreground">
+          ({isUp ? "+" : ""}
+          {diffPercent.toFixed(0)}%)
+        </span>
+      )}
+    </p>
+  )
 }
 
 function EstadoBreakdown({ data }: { data: LeadEstadoCount[] }) {
@@ -85,11 +127,17 @@ export const DashboardPage = () => {
             <CardHeader>
               <CardTitle>Leads hoy</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-1">
               {isLoading ? (
-                <Skeleton className="h-8 w-16" />
+                <>
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-4 w-40" />
+                </>
               ) : (
-                <CardValue>{stats?.leadsToday ?? 0}</CardValue>
+                <>
+                  <CardValue>{stats?.leadsToday ?? 0}</CardValue>
+                  {stats && <TodayVsYesterdayBadge data={stats.todayVsYesterday} />}
+                </>
               )}
             </CardContent>
           </Card>
