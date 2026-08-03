@@ -12,6 +12,7 @@ export interface Lead {
   campaignId: string
   campaignName: string
   pageId: string
+  pageName: string
   rawFieldData: Record<string, unknown>
   leadCreatedTime: string
   estado: LeadEstado

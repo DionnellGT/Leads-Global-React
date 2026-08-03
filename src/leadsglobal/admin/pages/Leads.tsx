@@ -147,6 +147,7 @@ export const Leads = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nombre</TableHead>
+                <TableHead>Página</TableHead>
                 <TableHead>Contacto</TableHead>
                 <TableHead>Formulario</TableHead>
                 <TableHead>Fecha</TableHead>
@@ -157,7 +158,7 @@ export const Leads = () => {
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell colSpan={5}>
+                    <TableCell colSpan={6}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
                   </TableRow>
@@ -167,6 +168,13 @@ export const Leads = () => {
                   <TableRow key={lead.id}>
                     <TableCell className="font-medium">
                       {lead.nombre || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {lead.pageName ? (
+                        <Badge>{lead.pageName}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col text-xs">
@@ -211,7 +219,7 @@ export const Leads = () => {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="py-10 text-center text-sm text-muted-foreground"
                   >
                     No hay leads que coincidan con estos filtros.
