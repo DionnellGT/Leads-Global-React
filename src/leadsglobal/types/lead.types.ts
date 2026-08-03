@@ -26,6 +26,7 @@ export interface LeadFilters {
   estado?: LeadEstado
   formId?: string
   campaignId?: string
+  pageId?: string
   search?: string
   page?: number
   limit?: number
@@ -61,10 +62,16 @@ export interface TodayVsYesterday {
   diffPercent: number | null
 }
 
+export interface AvailablePage {
+  pageId: string
+  pageName: string
+}
+
 export interface LeadStats {
   total: number
   leadsToday: number
   leadsThisWeek: number
+  leadsThisMonth: number
   todayVsYesterday: TodayVsYesterday
   byEstado: LeadEstadoCount[]
   leadsByDay: LeadsByDay[]

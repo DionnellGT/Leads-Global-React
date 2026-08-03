@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle, CardValue } from "@/components/ui/card"
+import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { Minus, TrendingDown, TrendingUp } from "lucide-react"
+import { useState } from "react"
 import {
   Bar,
   BarChart,
@@ -14,6 +16,7 @@ import {
   YAxis,
 } from "recharts"
 import { PageHeader } from "../../components/PageHeader"
+import { useAvailablePages } from "../../hooks/useAvailablePages"
 import { useLeadStats } from "../../hooks/useLeadStats"
 import type { LeadEstadoCount, TodayVsYesterday } from "../../types/lead.types"
 
@@ -98,13 +101,27 @@ function EstadoBreakdown({ data }: { data: LeadEstadoCount[] }) {
 }
 
 export const DashboardPage = () => {
-  const { data: stats, isLoading } = useLeadStats()
+  const [pageId, setPageId] = useState("")
+  const { data: stats, isLoading } = useLeadStats(pageId || undefined)
+  const { data: availablePages } = useAvailablePages()
 
   return (
     <>
       <PageHeader
         title="Dashboard"
         description="Resumen de leads capturados desde Facebook e Instagram"
+        actions={
+          <div className="w-48">
+            <Select value={pageId} onChange={(e) => setPageId(e.target.value)}>
+              <option value="">Todas las páginas</option>
+              {availablePages?.map((p) => (
+                <option key={p.pageId} value={p.pageId}>
+                  {p.pageName}
+                </option>
+              ))}
+            </Select>
+          </div>
+        }
       />
 
       <div className="flex-1 space-y-4 overflow-y-auto p-6">
@@ -112,13 +129,13 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Total de leads</CardTitle>
+              <CardTitle>Total de leads en el mes</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
-                <CardValue>{stats?.total ?? 0}</CardValue>
+                <CardValue>{stats?.leadsThisMonth ?? 0}</CardValue>
               )}
             </CardContent>
           </Card>
@@ -226,8 +243,15 @@ export const DashboardPage = () => {
 
         {/* Top formularios */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Formularios con más leads</CardTitle>
+            {!isLoading && stats && (
+              <p className="text-xs text-muted-foreground">
+                Total histórico:{" "}
+                <span className="font-medium text-foreground">{stats.total}</span>{" "}
+                lead{stats.total === 1 ? "" : "s"}
+              </p>
+            )}
           </CardHeader>
           <CardContent className="pt-4">
             {isLoading ? (

@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight, Download, Search } from "lucide-react"
 import { useState } from "react"
 import { getExportUrl } from "../../api/leads.api"
 import { PageHeader } from "../../components/PageHeader"
+import { useAvailablePages } from "../../hooks/useAvailablePages"
 import { useDebouncedValue } from "../../hooks/useDebouncedValue"
 import { useLeads } from "../../hooks/useLeads"
 import { useUpdateLeadEstado } from "../../hooks/useUpdateLeadEstado"
@@ -41,6 +42,7 @@ function formatDate(iso: string | null | undefined) {
 
 export const Leads = () => {
   const [search, setSearch] = useState("")
+  const [pageId, setPageId] = useState("")
   const [estado, setEstado] = useState<LeadEstado | "">("")
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
@@ -48,9 +50,11 @@ export const Leads = () => {
   const limit = 20
 
   const debouncedSearch = useDebouncedValue(search)
+  const { data: availablePages } = useAvailablePages()
 
   const filters: LeadFilters = {
     search: debouncedSearch || undefined,
+    pageId: pageId || undefined,
     estado: estado || undefined,
     desde: desde || undefined,
     hasta: hasta || undefined,
@@ -97,6 +101,23 @@ export const Leads = () => {
                 onChange={(e) => resetPageAndSet(setSearch)(e.target.value)}
               />
             </div>
+          </div>
+
+          <div className="w-44 space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">
+              Página
+            </label>
+            <Select
+              value={pageId}
+              onChange={(e) => resetPageAndSet(setPageId)(e.target.value)}
+            >
+              <option value="">Todas</option>
+              {availablePages?.map((p) => (
+                <option key={p.pageId} value={p.pageId}>
+                  {p.pageName}
+                </option>
+              ))}
+            </Select>
           </div>
 
           <div className="w-40 space-y-1">

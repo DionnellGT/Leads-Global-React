@@ -1,5 +1,6 @@
 import { api } from "@/lib/api"
 import type {
+  AvailablePage,
   Lead,
   LeadEstado,
   LeadFilters,
@@ -14,6 +15,7 @@ function buildParams(filters: LeadFilters) {
   if (filters.estado) params.estado = filters.estado
   if (filters.formId) params.formId = filters.formId
   if (filters.campaignId) params.campaignId = filters.campaignId
+  if (filters.pageId) params.pageId = filters.pageId
   if (filters.search) params.search = filters.search
   if (filters.page) params.page = filters.page
   if (filters.limit) params.limit = filters.limit
@@ -29,8 +31,15 @@ export async function fetchLeads(
   return data
 }
 
-export async function fetchLeadStats(): Promise<LeadStats> {
-  const { data } = await api.get<LeadStats>("/leads/stats")
+export async function fetchLeadStats(pageId?: string): Promise<LeadStats> {
+  const { data } = await api.get<LeadStats>("/leads/stats", {
+    params: pageId ? { pageId } : undefined,
+  })
+  return data
+}
+
+export async function fetchAvailablePages(): Promise<AvailablePage[]> {
+  const { data } = await api.get<AvailablePage[]>("/leads/pages")
   return data
 }
 
