@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { Loader2 } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
 
+import { useAuthStore } from "../store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,9 @@ export const LoginPage = () => {
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
   const errorMessage = useAuthStore((state) => state.errorMessage);
+  const clearMessages = useAuthStore((state) => state.clearMessages);
 
+  const [activeTab, setActiveTab] = useState("login");
   const [loginForm, setLoginForm] = useState(EMPTY_LOGIN);
   const [registerForm, setRegisterForm] = useState(EMPTY_REGISTER);
   const [isSubmitting, setSubmitting] = useState(false);
@@ -28,10 +30,10 @@ export const LoginPage = () => {
     const ok = await login(loginForm.email.trim(), loginForm.password);
 
     setSubmitting(false);
-    // Cualquier cuenta válida puede iniciar sesión; es AdminRoute (en el
-    // router) el que decide si puede quedarse en /admin o la devuelve al
-    // sitio público, según si tiene el rol "admin".
-    if (ok) navigate("/admin", { replace: true });
+    // login() ya solo devuelve true para cuentas con rol admin o leads —
+    // si falla (credenciales inválidas o sin permisos), errorMessage
+    // queda seteado en el store y se muestra debajo del formulario.
+    if (ok) navigate("/dashboard", { replace: true });
   };
 
   const handleRegister = async (event: FormEvent) => {
@@ -45,11 +47,19 @@ export const LoginPage = () => {
     );
 
     setSubmitting(false);
-    if (ok) navigate("/admin", { replace: true });
+    // register() crea la cuenta con rol "leads" (o lo agrega si el email
+    // ya existía) y autologuea — mismo destino que un login exitoso.
+    if (ok) navigate("/dashboard", { replace: true });
   };
 
   return (
-    <Tabs defaultValue="login">
+    <Tabs
+      value={activeTab}
+      onValueChange={(value) => {
+        setActiveTab(value as string);
+        clearMessages();
+      }}
+    >
       <TabsList className="w-full">
         <TabsTab value="login" className="flex-1">
           Iniciar sesión

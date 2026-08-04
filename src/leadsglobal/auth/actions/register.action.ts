@@ -9,7 +9,11 @@ export const registerAction = async(
 ): Promise<AuthResponse> => {
 
     try {
-        const {data} = await apiClient.post<AuthResponse>('/auth/register',{
+        // Este endpoint es específico de Leads Global: crea la cuenta con
+        // rol "leads" (o lo agrega si el email ya existía en GlobalApi,
+        // validando la contraseña) y devuelve user + token para
+        // autologuear directo, sin pasar por el registro genérico.
+        const {data} = await apiClient.post<AuthResponse>('/auth/register/leads',{
             fullName,
             email,
             password,
