@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -40,12 +41,22 @@ function formatDate(iso: string | null | undefined) {
   })
 }
 
+// Formatea en fecha local (no UTC) para que el filtro no se corra un día
+// hacia atrás/adelante según la zona horaria del navegador.
+function toISODate(date?: Date) {
+  if (!date) return undefined
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const d = String(date.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}`
+}
+
 export const Leads = () => {
   const [search, setSearch] = useState("")
   const [pageId, setPageId] = useState("")
   const [estado, setEstado] = useState<LeadEstado | "">("")
-  const [desde, setDesde] = useState("")
-  const [hasta, setHasta] = useState("")
+  const [desde, setDesde] = useState<Date | undefined>(undefined)
+  const [hasta, setHasta] = useState<Date | undefined>(undefined)
   const [page, setPage] = useState(1)
   const limit = 20
 
@@ -56,8 +67,8 @@ export const Leads = () => {
     search: debouncedSearch || undefined,
     pageId: pageId || undefined,
     estado: estado || undefined,
-    desde: desde || undefined,
-    hasta: hasta || undefined,
+    desde: toISODate(desde),
+    hasta: toISODate(hasta),
     page,
     limit,
   }
@@ -139,26 +150,18 @@ export const Leads = () => {
             </Select>
           </div>
 
-          <div className="w-36 space-y-1">
+          <div className="w-40 space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
               Desde
             </label>
-            <Input
-              type="date"
-              value={desde}
-              onChange={(e) => resetPageAndSet(setDesde)(e.target.value)}
-            />
+            <DatePicker value={desde} onChange={resetPageAndSet(setDesde)} />
           </div>
 
-          <div className="w-36 space-y-1">
+          <div className="w-40 space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
               Hasta
             </label>
-            <Input
-              type="date"
-              value={hasta}
-              onChange={(e) => resetPageAndSet(setHasta)(e.target.value)}
-            />
+            <DatePicker value={hasta} onChange={resetPageAndSet(setHasta)} />
           </div>
         </div>
 
